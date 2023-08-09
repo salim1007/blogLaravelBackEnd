@@ -8,24 +8,27 @@ use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         return response([
-            'posts'=>Post::orderBy('created_at', 'desc')->with('user:id,name,image')->withCount('comments','likes')->get()
-        ],200);
+            'posts' => Post::orderBy('created_at', 'desc')->with('user:id,name,image')->withCount('comments', 'likes')->get()
+        ], 200);
     }
 
-    public function show($id){
+    public function show($id)
+    {
         return response([
-            'post'=> Post::where('id', $id)->withCount('comments','likes')->get()
-        ],200);
+            'post' => Post::where('id', $id)->withCount('comments', 'likes')->get()
+        ], 200);
     }
 
-    public function store(Request $request){
-        $validator = Validator::make($request->all(),[
-            'body'=>'required|string'
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'body' => 'required|string'
         ]);
 
-        $image = $this->saveImage($request->image , 'posts');
+        $image = $this->saveImage($request->image, 'posts');
 
         $post = new Post();
         $post->body = $request->input('body');
@@ -34,55 +37,61 @@ class PostController extends Controller
         $post->save();
 
         return response([
-            'message'=>'Post created',
-            'post'=>$post
-        ],200);
+            'message' => 'Post created',
+            'post' => $post
+        ], 200);
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $id)
+    {
         $post = Post::find($id);
 
-        if(!$post){
+        if (!$post) {
             return response([
-                'message'=>'Post Not Found'
-            ],403);
+                'message' => 'Post Not Found'
+            ], 403);
         }
 
-        if($post->user_id != auth()->user()->id){
+        if ($post->user_id != auth()->user()->id) {
             return response([
-                'message'=>'Permission denied'
-            ],403);
+                'message' => 'Permission denied'
+            ], 403);
         }
 
-        $validator = Validator::make($request->all(),[
-            'body'=>'required|string'
+        $validator = Validator::make($request->all(), [
+            'body' => 'required|string'
         ]);
 
-        $post = new Post();
-        $post->body = $request->input('body');
-        $post->update();
+        if ($post) {
+            $post->body = $request->input('body');
+            $post->update();
 
-        
-
-        return response([
-            'message'=>'Post updated',
-            'post'=>$post
-        ],200);
-    }
-
-    public function destroy($id){
-        $post = Post::find($id);
-
-        if(!$post){
             return response([
-                'message'=>'Post Not Found'
-            ],403);
+                'message' => 'Post updated',
+                'post' => $post
+            ], 200);
         }
 
-        if($post->user_id != auth()->user()->id){
+
+
+
+        
+    }
+
+    public function destroy($id)
+    {
+        $post = Post::find($id);
+
+        if (!$post) {
             return response([
-                'message'=>'Permission denied'
-            ],403);
+                'message' => 'Post Not Found'
+            ], 403);
+        }
+
+        if ($post->user_id != auth()->user()->id) {
+            return response([
+                'message' => 'Permission denied'
+            ], 403);
         }
 
         $post->comments()->delete();
@@ -90,8 +99,7 @@ class PostController extends Controller
         $post->delete();
 
         return response([
-            'message'=>'Post deleted'
-        ],200);
-
+            'message' => 'Post deleted'
+        ], 200);
     }
 }

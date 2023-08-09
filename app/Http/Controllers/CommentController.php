@@ -20,7 +20,7 @@ class CommentController extends Controller
         }
 
         return response([
-            'post'=>$post->comments()->with('user:id,name,image')->get()
+            'comments'=>Post::find($id)->comments()->with('user:id,name,image')->get()
         ],200);
     }
 
@@ -62,14 +62,18 @@ class CommentController extends Controller
             'comment'=>'required|string'
         ]);
 
-        $comment = new Comment();
-        $comment->comment = $request->input('comment');
-        $comment->update();
+        if($comment){
+            $comment->comment = $request->input('comment');
+            $comment->update();
 
-        return response([
-            'message'=>'Comment updated'
-        ],200);
+            return response([
+                'message'=>'Comment updated'
+            ],200);
+    
+        }
+        
 
+       
 
 
     }

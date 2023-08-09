@@ -31,9 +31,11 @@ Route::group(['middleware'=> ['auth:sanctum']], function(){
     Route::put('/user', [AuthController::class, 'update']);
 
     //Post 
-    Route::get('/posts', [PostController::class, 'index']); //all posts
+   
     Route::post('/posts', [PostController::class, 'store']);//create post
     Route::get('/posts/{id}', [PostController::class, 'show']);//get single post
+    Route::get('/posts', [PostController::class, 'index']);//get all post
+
     Route::put('/posts/{id}', [PostController::class, 'update']);//update post
     Route::delete('/posts/{id}', [PostController::class, 'destroy']);// delete pst 
 

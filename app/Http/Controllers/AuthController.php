@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -41,6 +42,7 @@ class AuthController extends Controller
         $user->password = Hash::make($request->input('password'));
         $user->save();
 
+      
         return response([
             'user'=>$user,
             'token'=>$user->createToken('secret')->plainTextToken
@@ -82,19 +84,27 @@ class AuthController extends Controller
         ],200);
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request){
+        
         $validator = Validator::make($request->all(), [
            'name'=>'required|string'  
         ]);
 
+        if ($validator->fails()) {
+            return response([
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $image = $this->saveImage($request->image, 'profiles');
 
-        $user = User::where('id', auth()->user()->id);
+        $user = User::find(auth()->user()->id);
 
         if($user){
             $user->name = $request->input('name');
             $user->image = $image;
-            $user->update();
+            $user->save();
             
             return response([
                 'message'=>'User updated',
